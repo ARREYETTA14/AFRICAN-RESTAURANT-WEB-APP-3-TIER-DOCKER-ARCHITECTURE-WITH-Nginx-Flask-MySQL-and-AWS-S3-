@@ -1,6 +1,6 @@
 # 🍽️ AFRICAN RESTAURANT WEB APP (3-TIER DOCKER ARCHITECTURE WITH Nginx, Flask, MySQL and AWS S3)
 
-A containerized full-stack application demonstrating a real-world 3-tier architecture using:
+A containerised full-stack application demonstrating a real-world 3-tier architecture using:
 
 - Frontend → Nginx (UI layer)
 - Backend → Flask API (Business logic)
@@ -46,22 +46,23 @@ Launch:
 - On Sg, Open Ports:
     - 80 - Http port (Frontend)
     - 5000 (Backend - optional for testing)
-- SSH into instance
+- SSH into the instance
 
 ## STEP 2: INSTALL DOCKER
 
 ```bash
 sudo dnf update -y # update server
-sudo dnf install docker -y # install Docker
-
+sudo dnf install -y docker # install docker
+ls -la /usr/libexec/docker/ # check docker location
+sudo chmod +x /usr/libexec/docker/docker-setup-runtimes.sh # give execution permissions to my shell script
 sudo systemctl start docker # start docker
-sudo systemctl enable docker # make docker available even after a restart
-
-sudo usermod -aG docker ec2-user # add ec2-user to docker group so you do not use sudo to execute commands
-newgrp docker # refreshes your current shell session so that the group change made by sudo usermod -aG docker ec2-user takes effect immediately, without needing to log out and log back in
+sudo systemctl enable docker # enables docker 
+sudo systemctl status docker # check if docker is running
+sudo usermod -aG docker ec2-user # add ec2-user to the docker Group
+sudo reboot # reboot server to effect changes
 ```
 
-To install Docker compose Engine, use:
+To install Docker Compose Engine and the latest Buildx, use:
 
 ```bash
 uname -m
@@ -69,10 +70,18 @@ uname -m
 If you see ```x86_64```, run:
 
 ```bash
-sudo curl -L https://github.com/docker/buildx/releases/download/v0.17.1/buildx-v0.17.1.linux-amd64 \
--o /usr/local/lib/docker/cli-plugins/docker-buildx
+## install Docker Compose
+DOCKER_CONFIG=${DOCKER_CONFIG:-$HOME/.docker} # set DOCKER_CONFIG variable to $HOME/.docker if not already set
+mkdir -p $DOCKER_CONFIG/cli-plugins # create cli-plugins directory if it doesn't exist
+curl -SL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64 -o $DOCKER_CONFIG/cli-plugins/docker-compose # Install docker-compose
+chmod +x $DOCKER_CONFIG/cli-plugins/docker-compose # give execute permission to docker-compose file
+docker compose version
 
-sudo chmod +x /usr/local/lib/docker/cli-plugins/docker-buildx
+## install latest buildx
+BUILDX_VERSION=$(curl -s https://api.github.com/repos/docker/buildx/releases/latest | grep tag_name | cut -d '"' -f 4) # 
+echo $BUILDX_VERSION # get latest buildx version
+curl -SL https://github.com/docker/buildx/releases/download/${BUILDX_VERSION}/buildx-${BUILDX_VERSION}.linux-amd64 -o $HOME/.docker/cli-plugins/docker-buildx # 
+chmod +x $HOME/.docker/cli-plugins/docker-buildx # Makes the docker-buildx executable
 ```
 If you see ```aarch64```, run:
 
@@ -89,6 +98,7 @@ Verify:
 ```bash
 docker version
 docker compose version
+docker buildx version # check buildx version
 ```
 
 Install tree command to visualize directories:
