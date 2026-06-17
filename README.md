@@ -88,9 +88,7 @@ If you see ```aarch64```, run:
 ```bash
 sudo curl -L https://github.com/docker/buildx/releases/download/v0.17.1/buildx-v0.17.1.linux-arm64 \
 -o /usr/local/lib/docker/cli-plugins/docker-buildx
-
 sudo chmod +x /usr/local/lib/docker/cli-plugins/docker-buildx
-
 ```
 
 Verify:
